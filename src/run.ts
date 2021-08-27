@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as core from '@actions/core'
+import {CustomField, Task} from './types'
 
 export default async function run(): Promise<void> {
     try {
@@ -81,34 +82,4 @@ async function updateCustomField(task_id: string, team_id: string, custom_field:
         core.debug(JSON.stringify(response.data))
         core.info(`${task_id}: Succesfully updated field ${custom_field.name} with ID ${custom_field.id} to ${value}`)
     })
-}
-
-type CustomField = {
-    id: string,
-    name: string,
-    type: string
-    date_created: string,
-    hide_from_guests: boolean,
-    required: boolean
-}
-
-type Task = {
-    id: string,
-    custom_id : string,
-    name : string,
-    status: {
-        id: string,
-        status: string,
-        color: string,
-        orderindex: number,
-        type: string
-    },
-    custom_fields: CustomField[]
-    list: List
-}
-
-type List = {
-    id: string,
-    name: string,
-    access: boolean
 }

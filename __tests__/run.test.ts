@@ -2,10 +2,11 @@ import * as core from '@actions/core'
 import * as fs from "fs";
 import nock from "nock";
 import {expect, test} from '@jest/globals'
-import run from '../src/change_custom_field_value'
+import run from '../src/run'
 
-test('Default mode, assigns the task to Bar and Baz, removes user Foo', async () => {
+test('Updates the custom field value Custom field ABC to Value DEF for task MAX-185', async () => {
     const infoSpy = jest.spyOn(core, 'info')
+    const failedSpy = jest.spyOn(core, 'setFailed')
 
     const taskReply = fs.readFileSync(__dirname + '/' + 'get_task_response.json', 'utf-8')
     nock('https://api.clickup.com')
@@ -32,6 +33,7 @@ test('Default mode, assigns the task to Bar and Baz, removes user Foo', async ()
     const custom_field_label = process.env['INPUT_CUSTOM_FIELD_LABEL']
     const custom_field_value = process.env['INPUT_CUSTOM_FIELD_VALUE']
     expect(infoSpy).toHaveBeenCalledWith(`MAX-185: Succesfully updated field ${custom_field_label} with ID ${custom_field_id} to ${custom_field_value}`)
+    expect(failedSpy).toHaveBeenCalledTimes(0)
 })
 
 beforeEach(() => {
