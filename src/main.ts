@@ -1,2 +1,2 @@
-import run from './change_custom_field_value'
+import run from './run'
 run()
