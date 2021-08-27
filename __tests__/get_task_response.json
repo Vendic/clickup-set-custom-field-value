@@ -1,0 +1,10 @@
+{
+    "id": "wkw9uw",
+    "custom_id": "MAX-185",
+    "name": "API test",
+    "list": {
+        "id": "99999",
+        "name": "ABC",
+        "access": true
+    }
+}

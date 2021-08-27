@@ -1,0 +1,41 @@
+{
+    "fields": [
+        {
+            "id": "8ef6cd6a-8fd8-40fa-a805-5783bbcba0db",
+            "name": "Total pts",
+            "type": "formula",
+            "type_config": {
+                "simple": true,
+                "formula": "{cf_542ccd98-9bd8-43f6-85a6-75645c5493b9} * {cf_d81754fa-a599-4473-9da9-225daf02adc9}"
+            },
+            "date_created": "1627034026405",
+            "hide_from_guests": false,
+            "required": null
+        },
+        {
+            "id": "12-34-56",
+            "name": "Custom field ABC",
+            "type": "url",
+            "type_config": {},
+            "date_created": "1627551807478",
+            "hide_from_guests": false,
+            "required": false
+        },
+        {
+            "id": "dd74b6a1-a1cc-47e5-b39c-ead8426a2250",
+            "name": "Progress",
+            "type": "automatic_progress",
+            "type_config": {
+                "tracking": {
+                    "subtasks": true,
+                    "checklists": true,
+                    "assigned_comments": true
+                },
+                "complete_on": 3
+            },
+            "date_created": "1627034026317",
+            "hide_from_guests": false,
+            "required": null
+        }
+    ]
+}

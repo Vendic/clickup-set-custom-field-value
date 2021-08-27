@@ -1,0 +1,23 @@
+name: 'clickup-set-custom-field-value'
+description: 'Github action to automatically set a custom field value of a task in Clickup'
+author: 'Tjitse-E'
+runs:
+    using: 'node12'
+    main: 'dist/index.js'
+inputs:
+    clickup_token:
+        description: Your clickup token
+        required: true
+    clickup_custom_task_ids:
+        description: A list of custom task IDS of which you want to change the custom field value
+        required: true
+    clickup_team_id:
+        description: Your clickup team id
+        required: true
+    custom_field_label:
+        description: The custom field id in Clickup
+        required: true
+    custom_field_value:
+        description: The value of the custom field in Clickup
+        required: true
+
