@@ -1,7 +1,7 @@
 {
-    "name": "clickup-change-task-assignee",
+    "name": "clickup-set-custom-field-value",
     "version": "1.0.0",
-    "description": "Github action to automatically change the status of task in Clickup",
+    "description": "Github action to set a custom field in Clickup",
     "main": "src/main.ts",
     "scripts": {
         "build": "tsc",
