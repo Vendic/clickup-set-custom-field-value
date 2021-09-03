@@ -4471,7 +4471,8 @@ async function run() {
                 let custom_fields = await getCustomFieldsForList(task.list.id, token);
                 let matches = custom_fields.filter(custom_field => custom_field.name == custom_field_label);
                 if (matches.length == 0) {
-                    throw `Custom field ${custom_field_label} is not available for ${task_id}`;
+                    core.warning(`Custom field ${custom_field_label} is not available for ${task_id}`);
+                    continue;
                 }
                 let custom_field = matches[0];
                 await updateCustomField(task_id, team_id, custom_field, token, value);
