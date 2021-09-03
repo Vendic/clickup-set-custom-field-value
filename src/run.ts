@@ -17,14 +17,15 @@ export default async function run(): Promise<void> {
                 let custom_fields = await getCustomFieldsForList(task.list.id, token)
                 let matches: CustomField[] = custom_fields.filter(custom_field => custom_field.name == custom_field_label)
                 if (matches.length == 0) {
-                    throw `Custom field ${custom_field_label} is not available for ${task_id}`
+                    core.warning(`Custom field ${custom_field_label} is not available for ${task_id}`)
+                    continue
                 }
                 let custom_field: CustomField = matches[0]
 
                 await updateCustomField(task_id, team_id, custom_field, token, value)
             } catch (error) {
                 failed = true
-                core.info(`${task_id} error: ${error.message}`)
+                core.warning(`${task_id} error: ${error.message}`)
                 core.debug(`Error output for ${task_id}`)
                 core.debug(JSON.stringify(error))
             }
