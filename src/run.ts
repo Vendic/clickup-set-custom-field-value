@@ -23,7 +23,7 @@ export default async function run(): Promise<void> {
                 let custom_field: CustomField = matches[0]
 
                 await updateCustomField(task_id, team_id, custom_field, token, value)
-            } catch (error) {
+            } catch (error : any) {
                 failed = true
                 core.warning(`${task_id} error: ${error.message}`)
                 core.debug(`Error output for ${task_id}`)
