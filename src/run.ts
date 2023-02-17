@@ -79,6 +79,9 @@ async function updateCustomField(task_id: string, team_id: string, custom_field:
             'Authorization': token
         }
     }).then((response) => {
+        if (response.status != 200) {
+            core.setFailed(`POST request for custom field ${custom_field.id} failed with status code ${response.status}`)
+        }
         core.debug(`POST request for custom field ${custom_field.id} output:`)
         core.debug(JSON.stringify(response.data))
         core.info(`${task_id}: Succesfully updated field ${custom_field.name} with ID ${custom_field.id} to ${value}`)
