@@ -2,7 +2,7 @@ name: 'clickup-set-custom-field-value'
 description: 'Github action to automatically set a custom field value of a task in Clickup'
 author: 'Tjitse-E'
 runs:
-    using: 'node16'
+    using: 'node20'
     main: 'dist/index.js'
 inputs:
     clickup_token:
