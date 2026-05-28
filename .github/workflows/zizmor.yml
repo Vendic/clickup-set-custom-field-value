@@ -1,0 +1,53 @@
+name: "Zizmor: Workflow Security Analysis"
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  zizmor:
+    name: "Zizmor security scan"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      findings_only: ${{ steps.zizmor.outputs.findings_only }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Install zizmor
+        run: |
+          curl -sSL https://github.com/zizmorcore/zizmor/releases/latest/download/zizmor-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv zizmor /usr/local/bin/zizmor
+
+      - name: Run zizmor
+        id: zizmor
+        run: |
+          EXIT_CODE=0
+          zizmor . || EXIT_CODE=$?
+          if [ "$EXIT_CODE" -ge 11 ] && [ "$EXIT_CODE" -le 14 ]; then
+            echo "findings_only=true" >> "$GITHUB_OUTPUT"
+          fi
+          exit "$EXIT_CODE"
+
+      - name: Summary
+        if: always()
+        env:
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "## Zizmor Workflow Security Scan" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Repository**: ${REPO}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Branch**: ${BRANCH}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Date**: $(date -u +%Y-%m-%d)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Check the full log for all findings." >> "$GITHUB_STEP_SUMMARY"

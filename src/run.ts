@@ -13,7 +13,16 @@ export default async function run(): Promise<void> {
 
         for (const task_id of task_ids) {
             try {
-                let task = await getTask(task_id, team_id, token)
+                let task: Task
+                try {
+                    task = await getTask(task_id, team_id, token)
+                } catch (error) {
+                    if (axios.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 404)) {
+                        core.warning(`Task ${task_id} not found in ClickUp (${error.response?.status}), skipping.`)
+                        continue
+                    }
+                    throw error
+                }
                 let custom_fields = await getCustomFieldsForList(task.list.id, token)
                 let matches: CustomField[] = custom_fields.filter(custom_field => custom_field.name == custom_field_label)
                 if (matches.length == 0) {
