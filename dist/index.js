@@ -6172,20 +6172,32 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = run;
 const axios_1 = __importDefault(__nccwpck_require__(9019));
 const core = __importStar(__nccwpck_require__(4181));
 async function run() {
+    var _a, _b, _c;
     try {
         let failed = false;
         const token = core.getInput('clickup_token');
@@ -6195,7 +6207,17 @@ async function run() {
         const value = core.getInput('custom_field_value');
         for (const task_id of task_ids) {
             try {
-                let task = await getTask(task_id, team_id, token);
+                let task;
+                try {
+                    task = await getTask(task_id, team_id, token);
+                }
+                catch (error) {
+                    if (axios_1.default.isAxiosError(error) && (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) === 401 || ((_b = error.response) === null || _b === void 0 ? void 0 : _b.status) === 404)) {
+                        core.warning(`Task ${task_id} not found in ClickUp (${(_c = error.response) === null || _c === void 0 ? void 0 : _c.status}), skipping.`);
+                        continue;
+                    }
+                    throw error;
+                }
                 let custom_fields = await getCustomFieldsForList(task.list.id, token);
                 let matches = custom_fields.filter(custom_field => custom_field.name == custom_field_label);
                 if (matches.length == 0) {
@@ -6220,7 +6242,6 @@ async function run() {
         core.setFailed(`Action failed: ${error}`);
     }
 }
-exports["default"] = run;
 async function getTask(task_id, team_id, token) {
     const endpoint = `https://api.clickup.com/api/v2/task/${task_id}/?custom_task_ids=true&team_id=${team_id}`;
     const result = await axios_1.default.get(endpoint, {

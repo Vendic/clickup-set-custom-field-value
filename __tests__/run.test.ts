@@ -42,6 +42,47 @@ test('Display a warning when it tries to update a non existing custom field', as
     expect(infoSpy).toHaveBeenCalledTimes(0)
 })
 
+test('Skips a task ID that ClickUp reports as not found (401) without failing the job', async () => {
+    const infoSpy = jest.spyOn(core, 'info')
+    const warningSpy = jest.spyOn(core, 'warning')
+    const failedSpy = jest.spyOn(core, 'setFailed')
+
+    const team_id: string = process.env['INPUT_CLICKUP_TEAM_ID'] ?? ''
+    const custom_field_id = '12-34-56'
+    process.env['INPUT_CLICKUP_CUSTOM_TASK_IDS'] = 'MAX-185\nCVE-2026'
+    process.env['INPUT_CUSTOM_FIELD_LABEL'] = 'Custom field ABC'
+
+    mockApiEndpoints('MAX-185', custom_field_id, team_id)
+    nock('https://api.clickup.com')
+        .persist()
+        .get('/api/v2/task/CVE-2026/?custom_task_ids=true&team_id=123')
+        .reply(401, {err: 'Team(s) not authorized', ECODE: 'OAUTH_027'})
+
+    await run()
+
+    const custom_field_value = process.env['INPUT_CUSTOM_FIELD_VALUE']
+    expect(infoSpy).toHaveBeenCalledWith(`MAX-185: Succesfully updated field Custom field ABC with ID ${custom_field_id} to ${custom_field_value}`)
+    expect(warningSpy).toHaveBeenCalledWith('Task CVE-2026 not found in ClickUp (401), skipping.')
+    expect(failedSpy).toHaveBeenCalledTimes(0)
+})
+
+test('Still fails the job when a task GET returns a non-not-found error (500)', async () => {
+    const failedSpy = jest.spyOn(core, 'setFailed')
+
+    process.env['INPUT_CLICKUP_CUSTOM_TASK_IDS'] = 'ERR-500'
+    process.env['INPUT_CUSTOM_FIELD_LABEL'] = 'Custom field ABC'
+
+    nock('https://api.clickup.com')
+        .persist()
+        .get('/api/v2/task/ERR-500/?custom_task_ids=true&team_id=123')
+        .reply(500, {err: 'Internal Server Error'})
+
+    await run()
+
+    expect(failedSpy).toHaveBeenCalledTimes(1)
+    expect(failedSpy).toHaveBeenCalledWith('Action failed: One of the API requests has failed. Please check the logs for more details.')
+})
+
 function mockApiEndpoints(task_id: string, custom_field_id: string, team_id: string) {
     const taskReply = fs.readFileSync(__dirname + '/' + 'get_task_response.json', 'utf-8')
     nock('https://api.clickup.com')
